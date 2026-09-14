@@ -1,0 +1,17 @@
+<%# Lazy row content — expects key, data, error %>
+<% if (error) { %>
+  <div class="empty inline">
+    <p>Couldn't load this section <span class="dim">(<%= error %>)</span></p>
+    <button class="btn ghost small" type="button"
+            hx-get="/fragments/home-section/<%= key %>?page=1" hx-swap="outerHTML" hx-target="closest .empty">Retry</button>
+  </div>
+<% } else if (!data.length) { %>
+  <div class="empty inline"><p>Nothing here yet.</p></div>
+<% } else { %>
+  <% data.forEach((item) => { %>
+    <%- include('card.html', { item }) %>
+  <% }) %>
+  <a class="card more-card" href="/browse" aria-label="Browse all">
+    <span>View all →</span>
+  </a>
+<% } %>

@@ -1,0 +1,19 @@
+<!-- A–Z letter page -->
+<section class="page-head">
+  <h1>A–Z: <%= letter.toUpperCase() %></h1>
+  <div class="az-tabs compact">
+    <% letters.forEach((l) => { %>
+      <a class="az-tab<%= l.toUpperCase() === letter.toUpperCase() ? ' is-active' : '' %>" href="/az-list/<%= l %>"><%= l %></a>
+    <% }) %>
+  </div>
+</section>
+
+<div id="az-results"
+     hx-get="/az-list/<%= letter %>?page=<%= page %>"
+     hx-trigger="revealed" hx-swap="innerHTML">
+  <div class="grid-skeleton" aria-hidden="true">
+    <% for (let i = 0; i < 12; i++) { %>
+      <div class="card skeleton-card"><div class="sk sk-poster shimmer"></div><div class="card-body"><div class="sk sk-line w80 shimmer"></div><div class="sk sk-line w50 shimmer"></div></div></div>
+    <% } %>
+  </div>
+</div>

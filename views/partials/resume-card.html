@@ -1,0 +1,15 @@
+<%# Resume/continue-watching card — expects c (history entry) %>
+<a class="card resume-card fade-up" href="/watch/<%= c.slug %>/<%= c.ep %>">
+  <figure class="card-poster">
+    <img src="<%= c.poster %>" alt="<%= c.title %>" loading="lazy" decoding="async" data-fallback-img>
+    <span class="badge ep-badge">EP <%= c.ep %></span>
+    <span class="progress-track" aria-hidden="true">
+      <% const pct = c.duration > 0 ? Math.min(96, Math.round((c.position / c.duration) * 100)) : 0; %>
+      <span class="progress-fill" style="width:<%= pct %>%"></span>
+    </span>
+  </figure>
+  <div class="card-body">
+    <h3 class="card-title"><%= c.title %></h3>
+    <p class="card-jp dim">Episode <%= c.ep %><%= c.position > 0 ? ' · ' + Math.floor(c.position / 60) + 'm watched' : '' %></p>
+  </div>
+</a>

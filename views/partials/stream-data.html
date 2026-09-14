@@ -1,0 +1,13 @@
+<%# Stream resolution result — data-only node consumed by player.js
+    Expects stream { url, type, skipData, linkId } | { error } %>
+<div id="stream-data"
+     data-status="<%= stream.error ? 'error' : 'ok' %>"
+     data-url="<%= stream.url || '' %>"
+     data-type="<%= stream.type || '' %>"
+     data-link-id="<%= stream.linkId || '' %>"
+     data-intro-start="<%= stream.skipData?.intro?.[0] ?? '' %>"
+     data-intro-end="<%= stream.skipData?.intro?.[1] ?? '' %>"
+     data-outro-start="<%= stream.skipData?.outro?.[0] ?? '' %>"
+     data-outro-end="<%= stream.skipData?.outro?.[1] ?? '' %>"
+     data-error="<%= stream.error || '' %>">
+</div>

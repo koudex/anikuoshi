@@ -1,0 +1,26 @@
+<!-- Search page -->
+<section class="page-head">
+  <h1><%= q ? 'Search results' : 'Search anime' %></h1>
+  <p class="dim"><%= q ? `Showing results for “${q}”` : 'Find any anime by title, alternative name or keyword.' %></p>
+</section>
+
+<form class="search-page-form" action="/search" method="get" role="search">
+  <input type="search" name="q" value="<%= q %>" placeholder="e.g. Frieren, One Piece…" aria-label="Search query" autofocus>
+  <button class="btn primary" type="submit">Search</button>
+</form>
+
+<% if (q) { %>
+  <div id="search-results"
+       hx-get="/search?q=<%= encodeURIComponent(q) %>&page=<%= page %>"
+       hx-trigger="revealed" hx-swap="innerHTML">
+    <div class="grid-skeleton" aria-hidden="true">
+      <% for (let i = 0; i < 12; i++) { %>
+        <div class="card skeleton-card"><div class="sk sk-poster shimmer"></div><div class="card-body"><div class="sk sk-line w80 shimmer"></div><div class="sk sk-line w50 shimmer"></div></div></div>
+      <% } %>
+    </div>
+  </div>
+<% } else { %>
+  <div class="empty">
+    <p>Tip: press <kbd>/</kbd> anywhere to jump to the search box.</p>
+  </div>
+<% } %>

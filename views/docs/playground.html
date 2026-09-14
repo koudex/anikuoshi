@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="<%= theme %>">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AniKotoAPI — Interactive Docs & Playground</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/anikuoshi.css?v=1.0.2">
+</head>
+<body class="app-body docs-body">
+  <header class="docs-head">
+    <a href="/" class="brand"><span class="brand-logo">空</span><span class="brand-name">Ani<b>Kuoshi</b></span></a>
+    <span class="docs-tag">AniKotoAPI · docs + playground in one</span>
+    <a class="btn ghost small" href="/">← Back to app</a>
+  </header>
+
+  <main class="docs-main">
+    <section class="docs-intro">
+      <h1>REST API Playground</h1>
+      <p class="dim">
+        Every endpoint of the <strong>AniKotoAPI</strong> engine that powers this site — documented and executable
+        right here. Fill the params, hit <em>Execute</em>, inspect the live JSON. All requests run same-origin
+        (your own server), so nothing leaks beyond this instance.
+      </p>
+      <p class="dim">Base URL: <code id="base-url">/api</code> · Rate limit: 100 req/min · Cached responses return in ~ms.</p>
+    </section>
+
+    <nav class="docs-toc" aria-label="Endpoint groups">
+      <a href="#g-core">Core</a>
+      <a href="#g-browse">Browse &amp; Search</a>
+      <a href="#g-stream">Streaming</a>
+      <a href="#g-lists">Lists &amp; Rankings</a>
+      <a href="#g-meta">Meta &amp; System</a>
+    </nav>
+
+    <%
+      const E = [
+        { g: 'g-core', group: 'Core', m: 'GET', p: '/api/', d: 'API index with version info and creator metadata.', params: [] },
+        { g: 'g-core', group: 'Core', m: 'GET', p: '/api/info', d: 'Full anime detail: synopsis, studios, genres, ratings, artwork.', params: [{ k: 'slug', v: 'frieren-beyond-journey-s-end-season-2-cp7ym' }] },
+        { g: 'g-core', group: 'Core', m: 'GET', p: '/api/watch', d: 'Everything the watch page shows: metadata, next-episode schedule, recommended & trending.', params: [{ k: 'slug', v: 'frieren-beyond-journey-s-end-season-2-cp7ym' }, { k: 'ep', v: '1' }] },
+        { g: 'g-core', group: 'Core', m: 'GET', p: '/api/random', d: 'A random anime slug — for discovery buttons.', params: [] },
+
+        { g: 'g-browse', group: 'Browse & Search', m: 'GET', p: '/api/search', d: 'Full-text search with pagination.', params: [{ k: 'keyword', v: 'frieren' }, { k: 'page', v: '1' }] },
+        { g: 'g-browse', group: 'Browse & Search', m: 'GET', p: '/api/search/suggest', d: 'Lightweight suggestions for autocomplete boxes.', params: [{ k: 'keyword', v: 'one' }] },
+        { g: 'g-browse', group: 'Browse & Search', m: 'GET', p: '/api/filter', d: 'Advanced catalog filter (genre/type/status/season/year/sort).', params: [{ k: 'genre', v: 'action' }, { k: 'type', v: 'tv' }, { k: 'sort', v: 'score' }, { k: 'page', v: '1' }] },
+        { g: 'g-browse', group: 'Browse & Search', m: 'GET', p: '/api/az-list/:letter', d: 'Alphabetical catalog. Letter = A–Z, 0-9, or "other".', params: [{ k: ':letter', v: 'A' }, { k: 'page', v: '1' }] },
+        { g: 'g-browse', group: 'Browse & Search', m: 'GET', p: '/api/genre/:genre', d: 'Catalog by genre slug.', params: [{ k: ':genre', v: 'action' }, { k: 'page', v: '1' }] },
+        { g: 'g-browse', group: 'Browse & Search', m: 'GET', p: '/api/type/:type', d: 'Catalog by type: tv, movie, ova, ona, special, music.', params: [{ k: ':type', v: 'tv' }, { k: 'page', v: '1' }] },
+        { g: 'g-browse', group: 'Browse & Search', m: 'GET', p: '/api/status/:status', d: 'Catalog by airing status.', params: [{ k: ':status', v: 'currently-airing' }, { k: 'page', v: '1' }] },
+
+        { g: 'g-stream', group: 'Streaming', m: 'GET', p: '/api/episodes/:id', d: 'Episode list for an internal anime id. Each episode carries an encrypted server-ids token.', params: [{ k: ':id', v: '8384' }] },
+        { g: 'g-stream', group: 'Streaming', m: 'GET', p: '/api/episodes-ajax/:id', d: 'Raw AJAX episode-list HTML result (advanced use).', params: [{ k: ':id', v: '8384' }] },
+        { g: 'g-stream', group: 'Streaming', m: 'GET', p: '/api/servers', d: 'Streaming servers for an episode — pass the encrypted data-ids token from /api/episodes.', params: [{ k: 'ids', v: 'PASTE_TOKEN' }] },
+        { g: 'g-stream', group: 'Streaming', m: 'GET', p: '/api/stream', d: 'Resolve one server to its playback URL. Returns an EMBED url (megaplay) plus intro/outro skip data.', params: [{ k: 'id', v: 'PASTE_LINK_ID' }, { k: 'slug', v: 'frieren-beyond-journey-s-end-season-2-cp7ym' }] },
+        { g: 'g-stream', group: 'Streaming', m: 'GET', p: '/api/mapper-servers', d: 'Extra provider servers from the nekostream mapper (best effort).', params: [{ k: 'malId', v: '59978' }, { k: 'slug', v: 'frieren-beyond-journey-s-end-season-2-cp7ym' }, { k: 'timestamp', v: '1770433218' }] },
+        { g: 'g-stream', group: 'Streaming', m: 'GET', p: '/api/download', d: 'Download links for a stream/embed URL.', params: [{ k: 'url', v: 'https://megaplay.buzz/stream/s-2/163517/sub' }] },
+
+        { g: 'g-lists', group: 'Lists & Rankings', m: 'GET', p: '/api/spotlight', d: 'Hero carousel entries.', params: [] },
+        { g: 'g-lists', group: 'Lists & Rankings', m: 'GET', p: '/api/trending', d: 'Currently trending anime, paginated.', params: [{ k: 'page', v: '1' }] },
+        { g: 'g-lists', group: 'Lists & Rankings', m: 'GET', p: '/api/top-ten', d: 'Top 10 by period: day, week, month.', params: [{ k: 'period', v: 'week' }] },
+        { g: 'g-lists', group: 'Lists & Rankings', m: 'GET', p: '/api/most-popular', d: 'All-time most watched.', params: [{ k: 'page', v: '1' }] },
+        { g: 'g-lists', group: 'Lists & Rankings', m: 'GET', p: '/api/new-release', d: 'Newly released titles.', params: [{ k: 'page', v: '1' }] },
+        { g: 'g-lists', group: 'Lists & Rankings', m: 'GET', p: '/api/newly-added', d: 'Recently added to the catalog.', params: [{ k: 'page', v: '1' }] },
+        { g: 'g-lists', group: 'Lists & Rankings', m: 'GET', p: '/api/latest-updated', d: 'Titles with the freshest episodes.', params: [{ k: 'page', v: '1' }] },
+        { g: 'g-lists', group: 'Lists & Rankings', m: 'GET', p: '/api/recently-updated', d: 'Tabbed recently-updated feed (sub/dub/other).', params: [{ k: 'tab', v: 'sub' }] },
+        { g: 'g-lists', group: 'Lists & Rankings', m: 'GET', p: '/api/upcoming', d: 'Not-yet-aired titles.', params: [{ k: 'page', v: '1' }] },
+        { g: 'g-lists', group: 'Lists & Rankings', m: 'GET', p: '/api/completed', d: 'Finished series.', params: [{ k: 'page', v: '1' }] },
+        { g: 'g-lists', group: 'Lists & Rankings', m: 'GET', p: '/api/top-rankings', d: 'MAL-style rankings by type.', params: [{ k: 'type', v: 'all' }] },
+        { g: 'g-lists', group: 'Lists & Rankings', m: 'GET', p: '/api/trending-sidebar', d: 'Sidebar trending block used on watch pages.', params: [{ k: 'page', v: '1' }] },
+        { g: 'g-lists', group: 'Lists & Rankings', m: 'GET', p: '/api/schedule', d: 'Airing schedule for a date (YYYY-MM-DD).', params: [{ k: 'date', v: new Date().toISOString().slice(0,10) }] },
+        { g: 'g-lists', group: 'Lists & Rankings', m: 'GET', p: '/api/seasons/:id', d: 'All seasons belonging to an anime id.', params: [{ k: ':id', v: '8384' }] },
+        { g: 'g-lists', group: 'Lists & Rankings', m: 'GET', p: '/api/watch-order/:id', d: 'Canonical watch order / related entries.', params: [{ k: ':id', v: '8384' }] },
+
+        { g: 'g-meta', group: 'Meta & System', m: 'GET', p: '/api/health', d: 'Liveness probe with uptime + memory.', params: [] },
+        { g: 'g-meta', group: 'Meta & System', m: 'GET', p: '/api/stats', d: 'Aggregate runtime statistics.', params: [] },
+        { g: 'g-meta', group: 'Meta & System', m: 'GET', p: '/api/cache/stats', d: 'LRU cache hit/miss counters.', params: [] },
+        { g: 'g-meta', group: 'Meta & System', m: 'GET', p: '/api/mirrors', d: 'Mirror health with latency.', params: [] },
+        { g: 'g-meta', group: 'Meta & System', m: 'GET', p: '/api/proxy/status', d: 'Whether ScraperAPI / FlareSolverr bypasses are configured.', params: [] },
+        { g: 'g-meta', group: 'Meta & System', m: 'GET', p: '/api/openapi', d: 'Machine-readable OpenAPI description.', params: [] },
+      ];
+
+      let lastGroup = '';
+  %>
+    <% E.forEach((e) => { %>
+      <% if (e.group !== lastGroup) { %>
+        <h2 class="docs-group" id="<%= e.g %>"><%= e.group %></h2>
+        <% lastGroup = e.group; %>
+      <% } %>
+      <section class="ep-doc" data-endpoint data-method="<%= e.m %>" data-path="<%= e.p %>">
+        <header class="ep-doc-head">
+          <span class="method-chip"><%= e.m %></span>
+          <code class="ep-path"><%= e.p %></code>
+        </header>
+        <p class="ep-desc"><%= e.d %></p>
+        <% if (e.params.length) { %>
+          <div class="ep-params">
+            <% e.params.forEach((pa) => { %>
+              <label class="ep-param">
+                <span class="ep-param-name"><%= pa.k %></span>
+                <input type="text" data-param="<%= pa.k %>" value="<%= pa.v %>" spellcheck="false" autocomplete="off">
+              </label>
+            <% }) %>
+          </div>
+        <% } %>
+        <div class="ep-actions">
+          <button class="btn primary small" type="button" data-execute>Execute</button>
+          <button class="btn ghost small" type="button" data-copy-path>Copy path</button>
+          <span class="ep-status" aria-live="polite"></span>
+        </div>
+        <div class="ep-result" hidden>
+          <div class="ep-result-meta"></div>
+          <pre class="ep-json" tabindex="0"></pre>
+        </div>
+      </section>
+    <% }) %>
+
+    <footer class="docs-foot">
+      <p class="dim">AniKotoAPI by <strong>Shinei Nouzen</strong> · MIT · This instance also serves the AniKuoshi PWA.
+      The docs/playground is intentionally unlinked from the app UI.</p>
+    </footer>
+  </main>
+
+  <script src="/htmx.min.js?v=1.0.2" defer></script>
+  <script src="/js/app.js?v=1.0.2" defer></script>
+  <script src="/js/docs.js?v=1.0.2" defer></script>
+</body>
+</html>

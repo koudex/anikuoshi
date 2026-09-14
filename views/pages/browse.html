@@ -1,0 +1,46 @@
+<!-- Browse page -->
+<section class="page-head">
+  <h1>Browse anime</h1>
+  <p class="dim">Filter the full catalog by genre, type, season and more.</p>
+</section>
+
+<form class="filter-bar" id="browse-filters" method="get" action="/browse">
+  <label class="filter-field">
+    <span class="filter-label">Genre</span>
+    <select name="genre">
+      <option value="">Any</option>
+      <% options.genres.forEach((g) => { %><option value="<%= g %>" <%= filters.genre === g ? 'selected' : '' %>><%= g.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) %></option><% }) %>
+    </select>
+  </label>
+  <label class="filter-field">
+    <span class="filter-label">Status</span>
+    <select name="status">
+      <option value="">Any</option>
+      <% options.statuses.forEach((s) => { %><option value="<%= s %>" <%= filters.status === s ? 'selected' : '' %>><%= s.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) %></option><% }) %>
+    </select>
+  </label>
+  <label class="filter-field">
+    <span class="filter-label">Year</span>
+    <select name="year">
+      <option value="">Any</option>
+      <% options.years.forEach((y) => { %><option value="<%= y %>" <%= filters.year === y ? 'selected' : '' %>><%= y %></option><% }) %>
+    </select>
+  </label>
+  <label class="filter-field">
+    <span class="filter-label">Sort</span>
+    <select name="sort">
+      <% options.sorts.forEach((s) => { %><option value="<%= s %>" <%= filters.sort === s ? 'selected' : '' %>><%= s.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) %></option><% }) %>
+    </select>
+  </label>
+  <button class="btn primary" type="submit">Apply</button>
+</form>
+
+<div id="browse-results"
+     hx-get="/browse?<%= Object.entries(filters).filter(([, v]) => v).map(([k, v]) => k + '=' + encodeURIComponent(v)).join('&') %>"
+     hx-trigger="revealed" hx-swap="innerHTML">
+  <div class="grid-skeleton" aria-hidden="true">
+    <% for (let i = 0; i < 12; i++) { %>
+      <div class="card skeleton-card"><div class="sk sk-poster shimmer"></div><div class="card-body"><div class="sk sk-line w80 shimmer"></div><div class="sk sk-line w50 shimmer"></div></div></div>
+    <% } %>
+  </div>
+</div>

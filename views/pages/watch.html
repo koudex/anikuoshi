@@ -1,0 +1,162 @@
+<!-- Watch page / player -->
+<% const m = model; %>
+<div class="watch-layout" id="watch-root"
+     data-slug="<%= m.slug %>"
+     data-ep="<%= m.episodeNumber %>"
+     data-title="<%= m.title %>"
+     data-poster="<%= m.poster %>"
+     data-anime-id="<%= m.animeId %>"
+     data-total-eps="<%= m.episodesList.length %>"
+     data-estimated-duration="<%= parseInt(m.duration) ? parseInt(m.duration) * 60 : 1440 %>"
+     data-next-ep="<%= m.nextEp ? m.nextEp.number : '' %>"
+     data-prev-ep="<%= m.prevEp ? m.prevEp.number : '' %>"
+     data-next-timestamp="<%= m.nextEpisodeTimestamp || '' %>"
+     data-next-date="<%= m.nextEpisodeDate || '' %>"
+     data-ep-timestamp="<%= m.currentEp ? m.currentEp.timestamp : '' %>"
+     data-ep-mal="<%= m.currentEp ? m.currentEp.malId : '' %>"
+     data-resume-position="<%= saved && saved.ep === m.episodeNumber ? (saved.position || 0) : 0 %>">
+
+  <div class="player-col">
+    <!-- Player surface -->
+    <div class="player-shell" id="player-shell">
+      <div class="player-stage" id="player-stage">
+        <% if (m.stream && m.stream.url) { %>
+          <%- include('../partials/stream-data.html', { stream: m.stream, slug: m.slug, ep: m.episodeNumber }) %>
+        <% } else { %>
+          <div id="stream-data" data-status="error" data-url="" data-type="" data-link-id="" data-error="<%= m.stream ? (m.stream.error || 'Stream unavailable') : 'No stream' %>"></div>
+        <% } %>
+        <div class="player-embed-wrap" id="player-embed-wrap">
+          <!-- iframe injected by player.js -->
+        </div>
+        <div class="player-fallback" id="player-fallback" hidden>
+          <h3>Playback blocked upstream</h3>
+          <p class="dim">The source's bot protection rejected this server from our host's IP.
+          Try a <strong>different server</strong> below — or self-host the free
+          <a href="https://github.com/FlareSolverr/FlareSolverr" target="_blank" rel="noopener noreferrer">FlareSolverr</a>
+          and set <code>FLARESOLVERR_URL</code> to unblock all servers.</p>
+          <div class="player-fallback-actions">
+            <button class="btn primary" type="button" id="retry-stream">Retry</button>
+          </div>
+        </div>
+        <div class="player-skeleton" id="player-skeleton">
+          <div class="player-skeleton-inner"><div class="spinner"></div><p>Loading player…</p></div>
+        </div>
+      </div>
+
+      <!-- Skip overlays (positioned by player.js using skipData estimates) -->
+      <button class="skip-btn" id="skip-intro" type="button" hidden>Skip intro</button>
+      <button class="skip-btn" id="skip-outro" type="button" hidden>Skip outro</button>
+    </div>
+
+    <!-- Player toolbar -->
+    <div class="player-toolbar">
+      <div class="pt-nav">
+        <a class="btn ghost small <%= !m.prevEp ? 'is-disabled' : '' %>" id="btn-prev" href="<%= m.prevEp ? `/watch/${m.slug}/${m.prevEp.number}` : 'javascript:void(0)' %>" <%= m.prevEp ? '' : 'aria-disabled="true" tabindex="-1"' %>>‹ Prev</a>
+        <a class="btn primary small <%= !m.nextEp ? 'is-disabled' : '' %>" id="btn-next" href="<%= m.nextEp ? `/watch/${m.slug}/${m.nextEp.number}` : 'javascript:void(0)' %>" <%= m.nextEp ? '' : 'aria-disabled="true" tabindex="-1"' %>>Next ›</a>
+      </div>
+      <div class="pt-toggles" role="group" aria-label="Playback toggles">
+        <label class="toggle"><input type="checkbox" id="tg-autonext"><span class="toggle-track"></span>Auto next</label>
+        <label class="toggle"><input type="checkbox" id="tg-autoplay"><span class="toggle-track"></span>Autoplay</label>
+        <label class="toggle"><input type="checkbox" id="tg-autoskip"><span class="toggle-track"></span>Auto skip</label>
+        <button class="icon-btn" type="button" id="shortcuts-btn" title="Keyboard shortcuts (?)" aria-label="Keyboard shortcuts">
+          <svg class="i" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h.01M11 10h.01M15 10h.01M7 14h.01M11 14h.01M15 14h.01M17.5 10h.01M17.5 14h.01"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Servers -->
+    <div class="panel">
+      <div class="panel-head"><h2 class="section-title">Servers</h2><span class="dim" id="server-note"></span></div>
+      <% if (!m.servers.sub.length && !m.servers.dub.length) { %>
+        <div class="empty inline">
+          <p>No servers could be resolved from this host — upstream blocked AJAX.</p>
+          <p class="dim">Self-host the free FlareSolverr and set <code>FLARESOLVERR_URL</code>, then retry.</p>
+          <button class="btn ghost small" type="button" id="retry-servers">Retry servers</button>
+        </div>
+      <% } else { %>
+        <% if (m.servers.sub.length) { %>
+          <div class="server-group" data-server-type="sub">
+            <span class="server-label">SUB</span>
+            <div class="server-chips">
+              <% m.servers.sub.forEach((s, i) => { %>
+                <button class="server-chip<%= (m.stream && m.stream.serverType === 'sub' && i === 0) ? ' is-active' : '' %>"
+                        type="button" data-link-id="<%= s.link_id %>" data-server-name="<%= s.name %>" data-server-type="sub"><%= s.name %></button>
+              <% }) %>
+            </div>
+          </div>
+        <% } %>
+        <% if (m.servers.dub.length) { %>
+          <div class="server-group" data-server-type="dub">
+            <span class="server-label">DUB</span>
+            <div class="server-chips">
+              <% m.servers.dub.forEach((s) => { %>
+                <button class="server-chip" type="button" data-link-id="<%= s.link_id %>" data-server-name="<%= s.name %>" data-server-type="dub"><%= s.name %></button>
+              <% }) %>
+            </div>
+          </div>
+        <% } %>
+      <% } %>
+    </div>
+  </div>
+
+  <div class="side-col">
+    <!-- Next episode schedule -->
+    <% if (m.nextEpisodeTimestamp || m.nextEpisodeDate) { %>
+      <div class="panel schedule-panel">
+        <div class="panel-head"><h2 class="section-title">Next episode</h2></div>
+        <% if (m.nextEpisodeTimestamp) { %>
+          <p class="countdown" id="next-ep-countdown" data-ts="<%= m.nextEpisodeTimestamp %>">—</p>
+        <% } else { %>
+          <p class="countdown dim"><%= m.nextEpisodeDate %></p>
+        <% } %>
+      </div>
+    <% } %>
+
+    <!-- Episode drawer -->
+    <div class="panel episodes-panel" id="episodes-panel">
+      <div class="panel-head">
+        <h2 class="section-title">Episodes <span class="count-badge"><%= m.episodesList.length %></span></h2>
+        <input class="ep-jump" id="ep-jump" type="number" min="1" max="<%= m.episodesList.length || 9999 %>" placeholder="Jump…" aria-label="Jump to episode">
+      </div>
+      <div class="episodes-chunks drawer-episodes" id="drawer-episodes"
+           hx-get="/fragments/episodes/<%= m.slug %>?page=<%= Math.min(Math.max(1, Math.ceil(m.episodeNumber / 100)), Math.max(1, Math.ceil(m.episodesList.length / 100))) %>&current=<%= m.episodeNumber %>"
+           hx-trigger="revealed" hx-swap="innerHTML">
+        <%- include('../partials/skeleton-episodes.html', { n: 24 }) %>
+      </div>
+    </div>
+
+    <!-- Up next -->
+    <% if (m.nextEp) { %>
+      <a class="upnext" href="/watch/<%= m.slug %>/<%= m.nextEp.number %>">
+        <span class="upnext-label">Up next</span>
+        <span class="upnext-title">Episode <%= m.nextEp.number %><%= m.nextEp.title ? ' — ' + m.nextEp.title : '' %></span>
+      </a>
+    <% } %>
+  </div>
+</div>
+
+<section class="section">
+  <h2 class="section-title">About <%= m.title %></h2>
+  <p class="synopsis"><%= m.synopsis || 'No synopsis available.' %></p>
+  <% if (m.genres && m.genres.length) { %><div class="chip-row genres"><% m.genres.forEach((g) => { %><span class="chip"><%= g %></span><% }) %></div><% } %>
+</section>
+
+<% if (m.recommended.length) { %>
+<section class="section">
+  <h2 class="section-title">Recommendations</h2>
+  <div class="hscroll" data-row>
+    <% m.recommended.forEach((item) => { %><%- include('../partials/card.html', { item }) %><% }) %>
+  </div>
+</section>
+<% } %>
+
+<% if (m.trending.length) { %>
+<section class="section">
+  <h2 class="section-title">Trending now</h2>
+  <div class="hscroll" data-row>
+    <% m.trending.forEach((item) => { %><%- include('../partials/card.html', { item }) %><% }) %>
+  </div>
+</section>
+<% } %>
+
+<script src="/js/player.js" defer></script>

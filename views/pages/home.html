@@ -1,0 +1,67 @@
+<!-- AniKuoshi — Home -->
+<section class="hero-zone">
+  <% if (spotlightError) { %>
+    <div class="empty fade-up">
+      <p><strong>Upstream is unreachable right now.</strong></p>
+      <p class="dim">The source site may be blocking this server's IP or all mirrors are down.
+      Try again shortly, or set <code>FLARESOLVERR_URL</code> (free, self-hosted) to unblock.</p>
+    </div>
+  <% } else if (spotlight.length) { %>
+    <div class="hero" id="hero-carousel">
+      <div class="hero-track" id="hero-track">
+        <% spotlight.slice(0, 8).forEach((s, i) => { %>
+          <article class="hero-slide<%= i === 0 ? ' is-active' : '' %>" data-hero="<%= i %>">
+            <div class="hero-bg" style="background-image:url('<%= s.poster %>')" aria-hidden="true"></div>
+            <div class="hero-fade" aria-hidden="true"></div>
+            <div class="hero-content">
+              <span class="chip accent"><%= s.quality || 'HD' %></span>
+              <% if (s.type) { %><span class="chip"><%= s.type %></span><% } %>
+              <h2 class="hero-title"><a href="/anime/<%= s.slug %>"><%= s.title %></a></h2>
+              <p class="hero-jp dim"><%= s.japaneseTitle %></p>
+              <p class="hero-desc"><%= s.description %></p>
+              <div class="hero-actions">
+                <a class="btn primary" href="/watch/<%= s.slug %>/1">
+                  <svg class="i" viewBox="0 0 24 24"><path d="M8 5.5v13l10-6.5z"/></svg> Watch now
+                </a>
+                <a class="btn ghost" href="/anime/<%= s.slug %>">Details</a>
+              </div>
+            </div>
+          </article>
+        <% }) %>
+      </div>
+      <div class="hero-dots" id="hero-dots" role="tablist" aria-label="Featured anime">
+        <% spotlight.slice(0, 8).forEach((s, i) => { %>
+          <button class="hero-dot<%= i === 0 ? ' is-active' : '' %>" data-hero-dot="<%= i %>" type="button" aria-label="Slide <%= i + 1 %>"></button>
+        <% }) %>
+      </div>
+    </div>
+  <% } %>
+</section>
+
+<% if (continueWatching.length) { %>
+<section class="section fade-up">
+  <div class="section-head">
+    <h2 class="section-title">Continue watching</h2>
+    <a class="see-all" href="/history">See all</a>
+  </div>
+  <div class="hscroll" data-row>
+    <% continueWatching.forEach((c) => { %>
+      <%- include('../partials/resume-card.html', { c }) %>
+    <% }) %>
+  </div>
+</section>
+<% } %>
+
+<%
+  const lazyRows = [
+    { key: 'trending', title: 'Trending now' },
+    { key: 'top-ten', title: 'Top 10 today' },
+    { key: 'new-release', title: 'New releases' },
+    { key: 'recently-updated', title: 'Latest episodes' },
+    { key: 'most-popular', title: 'Most popular' },
+    { key: 'completed', title: 'Completed anime' },
+  ];
+%>
+<% lazyRows.forEach((row) => { %>
+  <%- include('../partials/row.html', { row }) %>
+<% }) %>

@@ -1,0 +1,107 @@
+<!-- Anime details page -->
+<% const info = model.info; %>
+<section class="detail-hero" style="background-image:url('<%= info.backgroundImage || info.poster %>')">
+  <div class="detail-hero-fade" aria-hidden="true"></div>
+  <div class="detail-hero-body">
+    <img class="detail-poster" src="<%= info.poster %>" alt="<%= info.title %>" data-fallback-img>
+    <div class="detail-meta">
+      <h1 class="detail-title"><%= info.title %></h1>
+      <% if (info.japaneseTitle) { %><p class="detail-jp dim"><%= info.japaneseTitle %></p><% } %>
+      <div class="chip-row">
+        <% if (info.rating) { %><span class="chip accent">★ <%= info.rating %></span><% } %>
+        <% if (info.type) { %><span class="chip"><%= info.type %></span><% } %>
+        <% if (info.status) { %><span class="chip"><%= info.status %></span><% } %>
+        <% if (info.duration) { %><span class="chip"><%= info.duration %></span><% } %>
+        <% if (info.episodes) { %><span class="chip"><%= info.episodes %> eps</span><% } %>
+      </div>
+      <div class="detail-actions">
+        <a class="btn primary" href="/watch/<%= info.slug %>/1">
+          <svg class="i" viewBox="0 0 24 24"><path d="M8 5.5v13l10-6.5z"/></svg>
+          <%= resume ? `Resume EP ${resume.ep}` : 'Start watching' %>
+        </a>
+        <button class="btn ghost" type="button" data-action="share" data-share-title="<%= info.title %>">Share</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <h2 class="section-title">Synopsis</h2>
+  <p class="synopsis"><%= info.synopsis || 'No synopsis available.' %></p>
+  <% if (info.genres && info.genres.length) { %>
+    <div class="chip-row genres">
+      <% info.genres.forEach((g) => { %><a class="chip link" href="/browse?genre=<%= String(g).toLowerCase().replace(/\s+/g, '-') %>"><%= g %></a><% }) %>
+    </div>
+  <% } %>
+  <% const extra = []; %>
+  <% if (info.studios && info.studios.length) extra.push('Studio: ' + info.studios.join(', ')); %>
+  <% if (info.premiered) extra.push('Premiered: ' + info.premiered); %>
+  <% if (info.aired) extra.push('Aired: ' + info.aired); %>
+  <% if (info.producers && info.producers.length) extra.push('Producers: ' + info.producers.join(', ')); %>
+  <% if (info.altNames) extra.push('Alt names: ' + info.altNames); %>
+  <% if (extra.length) { %><p class="dim meta-lines"><%= extra.join('  ·  ') %></p><% } %>
+</section>
+
+<% if (model.seasons && model.seasons.length) { %>
+<section class="section">
+  <h2 class="section-title">Seasons</h2>
+  <div class="season-list">
+    <% model.seasons.forEach((s) => { %>
+      <a class="season-item" href="/anime/<%= s.slug || s.href?.split('/watch/')[1] %>">
+        <% if (s.poster) { %><img src="<%= s.poster %>" alt="" loading="lazy" data-fallback-img><% } %>
+        <span class="season-name"><%= s.title || s.name %></span>
+        <% if (s.type) { %><span class="badge type"><%= s.type %></span><% } %>
+      </a>
+    <% }) %>
+  </div>
+</section>
+<% } %>
+
+<section class="section" id="episodes-section">
+  <div class="section-head">
+    <h2 class="section-title">Episodes <span class="count-badge" id="ep-total-count"><%= model.totalEpisodes %></span></h2>
+  </div>
+  <% if (!model.episodes.length) { %>
+    <div class="empty inline"><p>No episodes listed yet.</p></div>
+  <% } else { %>
+    <div class="episodes-wrap">
+      <%
+        const per = 100;
+        const totalPages = Math.max(1, Math.ceil(model.episodes.length / per));
+        const startPage = resume ? Math.min(totalPages, Math.max(1, Math.ceil(resume.ep / per))) : 1;
+      %>
+      <div class="ep-page-nav" id="ep-page-nav">
+        <% if (totalPages > 1) { %>
+          <button class="btn ghost small" type="button" data-ep-page="1" hx-get="/fragments/episodes/<%= info.slug %>?page=1&current=0" hx-target="#episodes-chunks" hx-swap="innerHTML">First 100</button>
+          <div class="ep-page-info dim">Page <span id="ep-page-current">1</span> / <%= totalPages %></div>
+          <button class="btn ghost small" type="button" data-ep-page="<%= totalPages %>" hx-get="/fragments/episodes/<%= info.slug %>?page=<%= totalPages %>&current=0" hx-target="#episodes-chunks" hx-swap="innerHTML">Last <%= model.episodes.length - (totalPages - 1) * per %>+</button>
+        <% } %>
+      </div>
+      <div class="episodes-chunks" id="episodes-chunks"
+           hx-get="/fragments/episodes/<%= info.slug %>?page=<%= startPage %>&current=0"
+           hx-trigger="revealed" hx-swap="innerHTML">
+        <%- include('../partials/skeleton-episodes.html', { n: 24 }) %>
+      </div>
+    </div>
+  <% } %>
+</section>
+
+<% if (model.related.length) { %>
+<section class="section">
+  <h2 class="section-title">Related</h2>
+  <div class="hscroll" data-row>
+    <% model.related.forEach((item) => { %><%- include('../partials/card.html', { item }) %><% }) %>
+  </div>
+</section>
+<% } %>
+
+<% if (model.recommended.length) { %>
+<section class="section">
+  <h2 class="section-title">Recommendations</h2>
+  <div class="hscroll" data-row>
+    <% model.recommended.forEach((item) => { %><%- include('../partials/card.html', { item }) %><% }) %>
+  </div>
+</section>
+<% } %>
+
+<script src="/js/page-anime.js" defer></script>

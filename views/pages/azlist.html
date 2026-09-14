@@ -1,0 +1,11 @@
+<!-- A–Z list page -->
+<section class="page-head">
+  <h1>A–Z list</h1>
+  <p class="dim">Browse every title alphabetically.</p>
+</section>
+
+<div class="az-tabs">
+  <% letters.forEach((l) => { %>
+    <a class="az-tab" href="/az-list/<%= l %>"><%= l %></a>
+  <% }) %>
+</div>

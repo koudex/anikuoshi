@@ -1,0 +1,27 @@
+<!-- Schedule page -->
+<section class="page-head">
+  <h1>Airing schedule</h1>
+  <p class="dim">Weekly release calendar — times are shown in the source site's timezone.</p>
+</section>
+
+<div class="day-tabs" id="day-tabs">
+  <% const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+     days.forEach((d, i) => {
+       const dt = new Date(d + 'T00:00:00Z');
+       const label = i === 0 ? 'Today' : dayNames[dt.getUTCDay()];
+  %>
+    <button class="day-tab<%= d === selected ? ' is-active' : '' %>" type="button"
+            data-day="<%= d %>"
+            hx-get="/fragments/schedule-day?date=<%= d %>"
+            hx-target="#schedule-day-view" hx-swap="innerHTML">
+      <span class="day-name"><%= label %></span>
+      <span class="day-date dim"><%= d.slice(5) %></span>
+    </button>
+  <% }) %>
+</div>
+
+<div id="schedule-day-view"
+     hx-get="/fragments/schedule-day?date=<%= selected %>"
+     hx-trigger="revealed" hx-swap="innerHTML">
+  <div class="empty inline"><p class="dim">Loading schedule…</p></div>
+</div>

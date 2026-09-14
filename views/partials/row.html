@@ -1,0 +1,11 @@
+<%# Lazy row shell — skeletons server-rendered, content swapped in by htmx on reveal %>
+<section class="section" data-lazy-row="<%= row.key %>">
+  <div class="section-head">
+    <h2 class="section-title"><%= row.title %></h2>
+  </div>
+  <div class="hscroll" data-row
+       hx-get="/fragments/home-section/<%= row.key %>?page=1"
+       hx-trigger="revealed" hx-swap="innerHTML" hx-target="this">
+    <%- include('skeleton-cards.html', { n: 6 }) %>
+  </div>
+</section>

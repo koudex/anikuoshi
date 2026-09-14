@@ -1,0 +1,13 @@
+<%# Anime card — expects `item` %>
+<a class="card fade-up" href="/anime/<%= item.slug %>">
+  <figure class="card-poster">
+    <img src="<%= item.poster %>" alt="<%= item.title %>" loading="lazy" decoding="async" data-fallback-img>
+    <% if (item.rating) { %><span class="badge score">★ <%= item.rating %></span><% } %>
+    <% if (item.type) { %><span class="badge type"><%= item.type %></span><% } %>
+    <span class="badge eps"><%= item.sub ? (item.sub + ' sub') : '' %><%= (item.sub && item.dub) ? ' · ' : '' %><%= item.dub ? (item.dub + ' dub') : '' %></span>
+  </figure>
+  <div class="card-body">
+    <h3 class="card-title"><%= item.title %></h3>
+    <% if (item.japaneseTitle) { %><p class="card-jp dim"><%= item.japaneseTitle %></p><% } %>
+  </div>
+</a>

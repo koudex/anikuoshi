@@ -1,0 +1,18 @@
+<!-- History page -->
+<section class="page-head">
+  <h1>Continue watching</h1>
+  <p class="dim">Progress syncs automatically on this device as you watch.</p>
+</section>
+
+<div class="section-actions">
+  <button class="btn ghost small" type="button" id="clear-history" hx-post="/fragments/history/clear" hx-target="#history-list" hx-swap="innerHTML" hx-confirm="Clear your entire watch history?">Clear all</button>
+</div>
+
+<div id="history-list"
+     hx-get="/fragments/history-list" hx-trigger="revealed" hx-swap="innerHTML">
+  <div class="grid-skeleton" aria-hidden="true">
+    <% for (let i = 0; i < 6; i++) { %>
+      <div class="card skeleton-card"><div class="sk sk-poster shimmer"></div><div class="card-body"><div class="sk sk-line w80 shimmer"></div><div class="sk sk-line w50 shimmer"></div></div></div>
+    <% } %>
+  </div>
+</div>

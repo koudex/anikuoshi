@@ -1,0 +1,36 @@
+<%# History items — expects items %>
+<% if (!items.length) { %>
+  <div class="empty">
+    <p><strong>No watch history yet.</strong></p>
+    <p class="dim">Start watching and your progress will sync here automatically — resume exactly where you left off.</p>
+    <a class="btn primary" href="/browse">Browse anime</a>
+  </div>
+<% } else { %>
+  <div class="history-grid">
+    <% items.forEach((c) => { %>
+      <div class="card resume-card history-entry" data-history-slug="<%= c.slug %>">
+        <a href="/watch/<%= c.slug %>/<%= c.ep %>" class="history-link">
+          <figure class="card-poster">
+            <img src="<%= c.poster %>" alt="<%= c.title %>" loading="lazy" data-fallback-img>
+            <span class="badge ep-badge">EP <%= c.ep %></span>
+            <span class="progress-track" aria-hidden="true">
+              <% const pct = c.duration > 0 ? Math.min(96, Math.round((c.position / c.duration) * 100)) : 0; %>
+              <span class="progress-fill" style="width:<%= pct %>%"></span>
+            </span>
+          </figure>
+          <div class="card-body">
+            <h3 class="card-title"><%= c.title %></h3>
+            <p class="card-jp dim">
+              Episode <%= c.ep %>
+              <% if (c.position > 0) { %> · <%= Math.floor(c.position / 60) %>m<% } %>
+              · <span data-relative-time="<%= c.updatedAt %>"></span>
+            </p>
+          </div>
+        </a>
+        <button class="icon-btn history-remove" type="button" data-remove-history="<%= c.slug %>" aria-label="Remove from history" title="Remove">
+          <svg class="i" viewBox="0 0 24 24"><path d="M5 7h14M10 7V5h4v2M7 7l1 13h8l1-13M10 11v6M14 11v6"/></svg>
+        </button>
+      </div>
+    <% }) %>
+  </div>
+<% } %>

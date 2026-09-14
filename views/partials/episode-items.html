@@ -1,0 +1,14 @@
+<%# Episode chips — expects slug, chunk, page, totalPages, total, currentEp %>
+<% chunk.forEach((e) => { %>
+  <a class="ep-chip<%= e.number === currentEp ? ' is-current' : '' %>"
+     href="/watch/<%= slug %>/<%= e.number %>"
+     data-ep="<%= e.number %>"
+     data-server-ids="<%= e.serverIds %>"
+     data-ep-title="<%= e.title %>"
+     data-ep-timestamp="<%= e.timestamp %>"
+     data-ep-mal="<%= e.malId %>">
+    <span class="ep-num"><%= e.number %></span>
+    <% if (e.title) { %><span class="ep-name"><%= e.title %></span><% } %>
+  </a>
+<% }) %>
+<input type="hidden" id="ep-pages" data-page="<%= page %>" data-total-pages="<%= totalPages %>" data-total="<%= total %>">

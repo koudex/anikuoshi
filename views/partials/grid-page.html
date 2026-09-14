@@ -1,0 +1,34 @@
+<%# Grid + pagination fragment — expects data, totalPages, currentPage, basePath, query, error %>
+<% if (error) { %>
+  <div class="empty">
+    <p><strong>Couldn't load results.</strong> <span class="dim">(<%= error %>)</span></p>
+    <p class="dim">The upstream may be blocking this server. Free fix: self-host FlareSolverr and set FLARESOLVERR_URL.</p>
+  </div>
+<% } else if (!data.length) { %>
+  <div class="empty"><p>No results found. Try different filters or keywords.</p></div>
+<% } else { %>
+  <div class="grid">
+    <% data.forEach((item) => { %>
+      <%- include('card.html', { item }) %>
+    <% }) %>
+  </div>
+  <% if (totalPages > 1) { %>
+    <%
+      const qs = Object.entries(query || {}).filter(([, v]) => v).map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join('&');
+      const pageUrl = (p) => `${basePath}?page=${p}${qs ? '&' + qs : ''}`;
+      const cp = currentPage, tp = totalPages;
+      const from = Math.max(1, cp - 2), to = Math.min(tp, cp + 2);
+      const pages = [];
+      for (let p = from; p <= to; p++) pages.push(p);
+    %>
+    <nav class="pagination" aria-label="Pagination">
+      <% if (cp > 1) { %><a class="page-btn" href="<%= pageUrl(cp - 1) %>">‹ Prev</a><% } %>
+      <% if (from > 1) { %><a class="page-btn" href="<%= pageUrl(1) %>">1</a><span class="page-ellipsis">…</span><% } %>
+      <% pages.forEach((p) => { %>
+        <a class="page-btn<%= p === cp ? ' is-current' : '' %>" href="<%= pageUrl(p) %>" <%= p === cp ? 'aria-current="page"' : '' %>><%= p %></a>
+      <% }) %>
+      <% if (to < tp) { %><span class="page-ellipsis">…</span><a class="page-btn" href="<%= pageUrl(tp) %>"><%= tp %></a><% } %>
+      <% if (cp < tp) { %><a class="page-btn" href="<%= pageUrl(cp + 1) %>">Next ›</a><% } %>
+    </nav>
+  <% } %>
+<% } %>

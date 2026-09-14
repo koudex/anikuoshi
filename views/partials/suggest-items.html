@@ -1,0 +1,15 @@
+<%# Search suggestions — expects items, q %>
+<% if (!items.length) { %>
+  <p class="suggest-empty dim">No matches for “<%= q %>”</p>
+<% } else { %>
+  <% items.forEach((item) => { %>
+    <a class="suggest-item" href="/anime/<%= item.slug %>">
+      <img class="suggest-poster" src="<%= item.poster %>" alt="" loading="lazy" data-fallback-img>
+      <span class="suggest-meta">
+        <span class="suggest-title"><%= item.title %></span>
+        <span class="suggest-sub dim"><%= [item.type, item.year, item.rating ? '★ ' + item.rating : ''].filter(Boolean).join(' · ') || 'Anime' %></span>
+      </span>
+    </a>
+  <% }) %>
+  <a class="suggest-item suggest-all" href="/search?q=<%= encodeURIComponent(q) %>">See all results for “<%= q %>”</a>
+<% } %>

@@ -1,0 +1,8 @@
+node_modules/
+.env
+.DS_Store
+*.log
+data/
+*.log
+public/icons/*.png
+!public/icons/favicon.svg

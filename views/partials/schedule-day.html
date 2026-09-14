@@ -1,0 +1,16 @@
+<%# Schedule day fragment — expects date, items, error %>
+<% if (error) { %>
+  <div class="empty inline"><p>Schedule unavailable for this day. <span class="dim">(<%= error %>)</span></p></div>
+<% } else if (!items.length) { %>
+  <div class="empty inline"><p>No episodes scheduled on <%= date %>.</p></div>
+<% } else { %>
+  <div class="schedule-list">
+    <% items.forEach((s) => { %>
+      <a class="schedule-item" href="/anime/<%= s.slug %>">
+        <span class="schedule-time"><%= s.time || 'TBA' %></span>
+        <span class="schedule-title"><%= s.title %></span>
+        <span class="badge ep-badge">EP <%= s.episode %></span>
+      </a>
+    <% }) %>
+  </div>
+<% } %>
