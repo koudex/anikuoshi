@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+    <title>Anikuoshi</title>
+    <meta name="description" content="Personal anime streaming PWA powered by APIKuoshi — no login, JSON-synced across your devices." />
+    <meta name="theme-color" content="#0a0b0e" />
+    <meta name="mobile-web-app-capable" content="content" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Anikuoshi" />
+    <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" />
+    <style>
+      /* boot splash — paints before the bundle loads */
+      html, body { margin: 0; background: #0a0b0e; }
+      #boot { position: fixed; inset: 0; display: grid; place-items: center; z-index: 9; }
+      #boot .mark { width: 74px; height: 74px; border-radius: 20px; background: linear-gradient(135deg, #7c3aed, #9d6ef8); display: grid; place-items: center; box-shadow: 0 8px 40px rgba(124,58,237,.45); animation: pulse 1.2s ease-in-out infinite; }
+      #boot .mark svg { width: 34px; height: 34px; fill: #fff; }
+      @keyframes pulse { 0%,100% { transform: scale(1); opacity: .92 } 50% { transform: scale(1.08); opacity: 1 } }
+    </style>
+    <script type="module" crossorigin src="/assets/index-D8oTEnOT.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/react-cxkclgJA.js">
+    <link rel="stylesheet" crossorigin href="/assets/style-ga0yziDl.css">
+  <link rel="manifest" href="/manifest.webmanifest"></head>
+  <body>
+    <div id="boot"><div class="mark"><svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5-11-6.5z"/></svg></div></div>
+    <div id="root"></div>
+  </body>
+</html>
